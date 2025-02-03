@@ -1,9 +1,9 @@
 {
   "description": "Add several utilities on Jobcan attendance board",
   "manifest_version": 3,
-  "name": "ジョブカン勤怠ヘルパー",
-  "version": "1.5.0",
-  "homepage_url": "https://github.com/exoego/jobkan-helper",
+  "name": "Jobcan Overwork Counter",
+  "version": "1.0.0",
+  "homepage_url": "https://github.com/yyamazaki933/jobcan-calc",
 
   "content_scripts": [
     {
@@ -34,12 +34,6 @@
       ]
     }
   ],
-
-  "icons": {
-    "128": "icons/icon-128.png",
-    "96": "icons/icon-96.png",
-    "48": "icons/icon-48.png"
-  },
 
   "browser_specific_settings": {
     "gecko": {
