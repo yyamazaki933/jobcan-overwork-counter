@@ -29,6 +29,17 @@ function makeTableRow (title, data) {
   </tr>`
 }
 
+const new_jbc_card = document.createElement('div')
+new_jbc_card.className = "card jbc-card-bordered h-100 mb-3"
+// new_jbc_card.innerHTML = `
+//   <div class="card-header jbc-card-header">
+//     <h5 class="card-text">[TEST] 残業カウンター</h5>
+//   </div>`
+
+const searchResult = document.querySelector('#search-result')
+const workRecordTable = document.querySelector('#search-result > div.table-responsive')
+searchResult.insertBefore(new_jbc_card, workRecordTable)
+
 try {
   // ユーザー情報
   const userInfoTBody = document.querySelector('#search-result > div.row > div:nth-child(1) > div.card > div.card-body > table > tbody')
@@ -72,15 +83,13 @@ try {
   let ave45hMin = 0
   let ave80hMin = 0
   if (remainWorkday != 0) {
-    ave80hMin = remain80hMin / remainWorkday
-    ave45hMin = remain45hMin / remainWorkday
+    ave80hMin = Math.floor(remain80hMin / remainWorkday)
+    ave45hMin = Math.floor(remain45hMin / remainWorkday)
   }
 
-  const new_jbc_card = document.createElement('div')
-  new_jbc_card.className = "card jbc-card-bordered h-100 mb-3"
   new_jbc_card.innerHTML = `
     <div class="card-header jbc-card-header">
-      <h5 class="card-text">残業カウンター **TEST** </h5>
+      <h5 class="card-text">[TEST] 残業カウンター</h5>
     </div>
     <div class="card-body">
       <table class="table jbc-table jbc-table-fixed info-contents">
@@ -90,18 +99,20 @@ try {
           ${makeTableRow("残業時間", minutesToHoursMinutes(overworkMin))}
           ${makeTableRow("残業45H超過まで残り", minutesToHoursMinutes(remain45hMin))}
           ${makeTableRow("残業80H超過まで残り", minutesToHoursMinutes(remain80hMin))}
-          ${makeTableRow("残り勤務日数", remainWorkDay + ' 日')}
+          ${makeTableRow("残り勤務日数", remainWoarkday + ' 日')}
           ${makeTableRow("残業45H以内 1日平均", minutesToHoursMinutes(ave45hMin))}
           ${makeTableRow("残業80H以内 1日平均", minutesToHoursMinutes(ave80hMin))}
         </tbody>
       </table>
     </div>`
 
-  const searchResult = document.querySelector('#search-result')
-  const workRecordTable = document.querySelector('#search-result > div.table-responsive')
-  searchResult.insertBefore(new_jbc_card, workRecordTable)
-
 } catch (e) {
   console.error(e)
-  text.innerText = '😱 エラーが発生しました。jobkan-helper にご報告いただけると助かります'
+  new_jbc_card.innerHTML = `
+    <div class="card-header jbc-card-header">
+      <h5 class="card-text">[TEST] 残業カウンター</h5>
+    </div>
+    <div class="card-body">
+      ${e}
+    </div>`
 }
