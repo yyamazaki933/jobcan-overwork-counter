@@ -13,9 +13,9 @@ function minutesToHoursMinutes (allMinutes) {
   const hours = Math.floor(abs / 60)
   const minutes = abs - hours * 60
   if (hours > 0) {
-    return `${hours}時間 ${minutes}分`
+    return `${hours} 時間 ${minutes} 分`
   } else {
-    return `${minutes}分`
+    return `${minutes} 分`
   }
 }
 
@@ -79,6 +79,8 @@ try {
   const regularWorkday = userInfo['所定労働日数'].match(/[0-9]{2}/)[0]
   const actualWorkday = basicInfo['実働日数']
 
+  const remainMin = regularMin - actualMin
+
   const over45hMin = regularMin + (45 * 60)
   const over80hMin = regularMin + (80 * 60)
   const remain45hMin = over45hMin - actualMin
@@ -98,6 +100,7 @@ try {
         ${makeTableRow("規定労働時間", minutesToHoursMinutes(regularMin))}
         ${makeTableRow("実働時間", minutesToHoursMinutes(actualMin))}
         ${makeTableRow("残業時間", minutesToHoursMinutes(overworkMin))}
+        ${makeTableRow("規定時間まで残り", minutesToHoursMinutes(remainMin))}
         ${makeTableRow("残業45H超過まで残り", minutesToHoursMinutes(remain45hMin))}
         ${makeTableRow("残業80H超過まで残り", minutesToHoursMinutes(remain80hMin))}
         ${makeTableRow("残り勤務日数", remainWorkday + ' 日')}
