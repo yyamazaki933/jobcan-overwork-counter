@@ -9,14 +9,16 @@ function timeToMinutes (time) {
 }
 
 function minutesToHoursMinutes (allMinutes) {
+  let hm_str = ''
+  if (allMinutes < 0) {
+    hm_str = '- '
+  }
   const abs = Math.abs(allMinutes)
   const hours = Math.floor(abs / 60)
   const minutes = abs - hours * 60
-  if (hours > 0) {
-    return `${hours} 時間 ${minutes} 分`
-  } else {
-    return `${minutes} 分`
-  }
+  hm_str += `${hours}:`
+  hm_str += `0${minutes}`.slice(-2)
+  return hm_str
 }
 
 function makeTableRow (title, data) {
@@ -29,12 +31,16 @@ function makeTableRow (title, data) {
   </tr>`
 }
 
+function handleClick () {
+  console.log("CSV Download!!")
+}
+
 const new_jbc_card = document.createElement('div')
 new_jbc_card.className = "card jbc-card-bordered h-100 mb-3"
 
 const new_card_head = document.createElement('div')
 new_card_head.className = "card-header jbc-card-header"
-new_card_head.innerHTML = '<h5 class="card-text">[TEST] 残業カウンター</h5>'
+new_card_head.innerHTML = '<h5 class="card-text">**TEST** 残業カウンター</h5>'
 new_jbc_card.append(new_card_head)
 
 const new_card_body = document.createElement('div')
@@ -74,22 +80,33 @@ try {
     }, {})
   
   const regularMin = statisticsMins['月規定労働時間']
-  const actualMin = statisticsMins['実労働時間']
-  const overworkMin = statisticsMins['実残業時間']
-  const regularWorkday = userInfo['所定労働日数'].match(/[0-9]{2}/)[0]
-  const actualWorkday = basicInfo['実働日数']
-
-  const remainMin = regularMin - actualMin
-
   const over45hMin = regularMin + (45 * 60)
   const over80hMin = regularMin + (80 * 60)
-  const remain45hMin = over45hMin - actualMin
-  const remain80hMin = over80hMin - actualMin
+  const actualMin = statisticsMins['実労働時間']
+  const regularWorkday = userInfo['所定労働日数'].match(/[0-9]{2}/)[0]
+  const actualWorkday = basicInfo['実働日数']
+  
+  const overworkMin = actualMin - (actualWorkday * 8 * 60)
+
+  let remainMin = regularMin - actualMin
+  let remain45hMin = over45hMin - actualMin
+  let remain80hMin = over80hMin - actualMin
+  if (remainMin < 0) {
+    remainMin = 0
+  }
+  if (remain45hMin < 0) {
+    remain45hMin = 0
+  }
+  if (remain80hMin < 0) {
+    remain80hMin = 0
+  }
 
   const remainWorkday = parseInt(regularWorkday, 10) - parseInt(actualWorkday, 10)
+  let aveMin = 0
   let ave45hMin = 0
   let ave80hMin = 0
   if (remainWorkday != 0) {
+    aveMin    = Math.floor(remainMin    / remainWorkday)
     ave80hMin = Math.floor(remain80hMin / remainWorkday)
     ave45hMin = Math.floor(remain45hMin / remainWorkday)
   }
@@ -97,17 +114,26 @@ try {
   new_card_body.innerHTML = `
     <table class="table jbc-table jbc-table-fixed info-contents">
       <tbody>
-        ${makeTableRow("規定労働時間", minutesToHoursMinutes(regularMin))}
+        ${makeTableRow("規定労働時間 / +45H / +80H", `${minutesToHoursMinutes(regularMin)} / ${minutesToHoursMinutes(over45hMin)} / ${minutesToHoursMinutes(over80hMin)}`)}
         ${makeTableRow("実働時間", minutesToHoursMinutes(actualMin))}
         ${makeTableRow("残業時間", minutesToHoursMinutes(overworkMin))}
-        ${makeTableRow("規定時間まで残り", minutesToHoursMinutes(remainMin))}
-        ${makeTableRow("残業45H超過まで残り", minutesToHoursMinutes(remain45hMin))}
-        ${makeTableRow("残業80H超過まで残り", minutesToHoursMinutes(remain80hMin))}
-        ${makeTableRow("残り勤務日数", remainWorkday + ' 日')}
-        ${makeTableRow("残業45H以内 1日平均", minutesToHoursMinutes(ave45hMin))}
-        ${makeTableRow("残業80H以内 1日平均", minutesToHoursMinutes(ave80hMin))}
+        ${makeTableRow("規定時間まで残り", `${minutesToHoursMinutes(remainMin)} ( 1日平均: ${minutesToHoursMinutes(aveMin)} )`)}
+        ${makeTableRow("+45Hまで残り", `${minutesToHoursMinutes(remain45hMin)} ( 1日平均: ${minutesToHoursMinutes(ave45hMin)} )`)}
+        ${makeTableRow("+80Hまで残り", `${minutesToHoursMinutes(remain80hMin)} ( 1日平均: ${minutesToHoursMinutes(ave80hMin)} )`)}
       </tbody>
-    </table>`
+    </table>
+    `
+  
+    const btn_row = document.createElement("div")
+    btn_row.className = "card-text text-right"
+    new_card_body.append(btn_row)
+
+    const csv_button = document.createElement("input")
+    csv_button.className = "btn jbc-btn-outline-primary"
+    csv_button.type = "button"
+    csv_button.value = "CSVダウンロード"
+    csv_button.onclick = handleClick
+    btn_row.append(csv_button)
 
 } catch (e) {
   console.error(e)
