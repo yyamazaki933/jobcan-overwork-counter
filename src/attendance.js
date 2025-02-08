@@ -31,8 +31,11 @@ function makeTableRow (title, data) {
   </tr>`
 }
 
-function handleClick () {
-  console.log("CSV Download!!")
+function handleDownload() {
+  var bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+  var content = '2,3,=a1*b1';
+  var blob = new Blob([ bom, content ], { "type" : "text/csv" });
+  document.getElementById("download").href = window.URL.createObjectURL(blob);
 }
 
 const new_jbc_card = document.createElement('div')
@@ -128,11 +131,12 @@ try {
     btn_row.className = "card-text text-right"
     new_card_body.append(btn_row)
 
-    const csv_button = document.createElement("input")
+    const csv_button = document.createElement("a")
+    csv_button.id = "download"
     csv_button.className = "btn jbc-btn-outline-primary"
     csv_button.type = "button"
-    csv_button.value = "CSVダウンロード"
-    csv_button.onclick = handleClick
+    csv_button.innerText = "CSVダウンロード"
+    csv_button.onclick = handleDownload
     btn_row.append(csv_button)
 
 } catch (e) {
