@@ -32,10 +32,10 @@ function makeTableRow (title, data) {
 }
 
 function handleDownload() {
+  var content = '2,3,=a1*b1\n所定労働時間,かかかか,aaaaa\naaaaa,aaaa,aa';
   var bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
-  var content = '2,3,=a1*b1';
   var blob = new Blob([ bom, content ], { "type" : "text/csv" });
-  document.getElementById("download").href = window.URL.createObjectURL(blob);
+  document.getElementById("download_csv").href = window.URL.createObjectURL(blob);
 }
 
 const new_jbc_card = document.createElement('div')
@@ -88,6 +88,8 @@ try {
   const actualMin = statisticsMins['実労働時間']
   const regularWorkday = userInfo['所定労働日数'].match(/[0-9]{2}/)[0]
   const actualWorkday = basicInfo['実働日数']
+  const titleYearMonth = userInfo['年月']
+  const staffCode = userInfo['スタッフコード']
   
   const overworkMin = actualMin - (actualWorkday * 8 * 60)
 
@@ -126,18 +128,19 @@ try {
       </tbody>
     </table>
     `
-  
-    const btn_row = document.createElement("div")
-    btn_row.className = "card-text text-right"
-    new_card_body.append(btn_row)
 
-    const csv_button = document.createElement("a")
-    csv_button.id = "download"
-    csv_button.className = "btn jbc-btn-outline-primary"
-    csv_button.type = "button"
-    csv_button.innerText = "CSVダウンロード"
-    csv_button.onclick = handleDownload
-    btn_row.append(csv_button)
+  const btn_row = document.createElement("div")
+  btn_row.className = "card-text text-right"
+  new_card_body.append(btn_row)
+
+  const csv_button = document.createElement("a")
+  csv_button.id = "download_csv"
+  csv_button.className = "btn jbc-btn-outline-primary"
+  csv_button.innerText = "CSVダウンロード"
+  csv_button.download = `${titleYearMonth}_${staffCode}.csv`
+  csv_button.href = "#"
+  csv_button.onclick = handleDownload
+  btn_row.append(csv_button)
 
 } catch (e) {
   console.error(e)
