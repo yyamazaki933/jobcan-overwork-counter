@@ -3,7 +3,7 @@
   "manifest_version": 3,
   "name": "Jobcan Overwork Counter",
   "version": "1.0.0",
-  "homepage_url": "https://github.com/yyamazaki933/jobcan-calc",
+  "homepage_url": "https://github.com/yyamazaki933/jobcan-overwork-counter",
 
   "content_scripts": [
     {
