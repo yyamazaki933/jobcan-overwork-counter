@@ -46,14 +46,21 @@ function getWorktimeTable() {
   trows.forEach(tr => {
     const row = []
     let workmin = null
+    let holiday = false
     const tdatas = tr.querySelectorAll('td')
     tdatas.forEach((td, key) => {
       let item = td.innerText.replace(/(\r\n|\n|\r)/gm, "")
+      if (item && key === 1) {  // 休日区分：休日出勤の判別のため取得
+        holiday = true
+      }
       if (item && key === 4) {  // 勤務時間：次の残業時間計算のため取得
         workmin = timeToMinutes(item)
       }
       if (workmin && key === 5) {  // 残業時間：一日ごとに-8:00して入力
         let overmin = workmin - timeToMinutes('8:00')
+        if (holiday) { // 休日出勤の場合は勤務時間をすべて残業時間に加算
+          overmin = workmin
+        }
         item = minutesToHoursMinutes(overmin)
         if (!td.innerText) {  //（空欄だったらtableに表示）
           td.innerText = item
@@ -71,10 +78,10 @@ function getWorktimeTable() {
   const f0 = data.length + 1 // row idx
   const footer0 = ["合計", "", "", "", `=SUM(E2:E${f0-1})+$B$${f0+3}-$B$${f0+3}`, `=SUM(F2:F${f0-1})+$B$${f0+3}-$B$${f0+3}`, `=SUM(G2:G${f0-1})+$B$${f0+3}-$B$${f0+3}`, `=SUM(H2:H${f0-1})+$B$${f0+3}-$B$${f0+3}`, "", ""]
   const footer1 = ["残勤務日", `${remainWorkday}`]
-  const footer2 = ["", "所定", "残り時間", "残日平均"]
-  const footer3 = ["規定時間まで", `${minutesToHoursMinutes(regularMin)}`, `=B${f0+3}-E${f0}`, `=C${f0+3}/B${f0+1}`]
-  const footer4 = ["+45Hまで",     `${minutesToHoursMinutes(over45hMin)}`, `=B${f0+4}-E${f0}`, `=C${f0+4}/B${f0+1}`]
-  const footer5 = ["+80Hまで",     `${minutesToHoursMinutes(over80hMin)}`, `=B${f0+5}-E${f0}`, `=C${f0+5}/B${f0+1}`]
+  const footer2 = ["", "規定労働時間", "規定+45H", "規定+80H"]
+  const footer3 = ["所定時間", `${minutesToHoursMinutes(regularMin)}`, `${minutesToHoursMinutes(over45hMin)}`, `${minutesToHoursMinutes(over80hMin)}`]
+  const footer4 = ["残り時間", `=B${f0+3}-$E$${f0}`, `=C${f0+3}-$E$${f0}`, `=D${f0+3}-$E$${f0}`]
+  const footer5 = ["1日平均", `=B${f0+4}/$B$${f0+1}`, `=C${f0+4}/$B$${f0+1}`, `=D${f0+4}/$B$${f0+1}`]
   data.push(footer0)
   data.push(footer1)
   data.push(footer2)
@@ -105,7 +112,7 @@ new_jbc_card.className = "card jbc-card-bordered h-100 mb-3"
 
 const new_card_head = document.createElement('div')
 new_card_head.className = "card-header jbc-card-header"
-new_card_head.innerHTML = '<h5 class="card-text">集計情報</h5>'
+new_card_head.innerHTML = '<h5 class="card-text">残業時間 (拡張)</h5>'
 new_jbc_card.append(new_card_head)
 
 const new_card_body = document.createElement('div')
@@ -154,7 +161,7 @@ try {
   over80hMin = regularMin + (80 * 60)
   const actualMin = statisticsMins['実労働時間']
   const regularWorkday = userInfo['所定労働日数'].match(/[0-9]{2}/)[0]
-  const actualWorkday = basicInfo['実働日数']
+  const actualWorkday = basicInfo['平日出勤日数']
   const titleYearMonth = userInfo['年月']
   const staffCode = userInfo['スタッフコード']
   
@@ -177,10 +184,12 @@ try {
   let aveMin = 0
   let ave45hMin = 0
   let ave80hMin = 0
-  if (remainWorkday != 0) {
+  if (remainWorkday > 0) {
     aveMin    = Math.floor(remainMin    / remainWorkday)
     ave80hMin = Math.floor(remain80hMin / remainWorkday)
     ave45hMin = Math.floor(remain45hMin / remainWorkday)
+  } else {
+    remainWorkday = 0
   }
 
   getWorktimeTable() // 残業時間表示のため
@@ -190,13 +199,13 @@ try {
       <tbody>
         ${makeTableRow("実働時間", [minutesToHoursMinutes(actualMin), '', ''])}
         ${makeTableRow("残業時間", [minutesToHoursMinutes(overworkMin), '', ''])}
-        ${makeTableRow("残り日数", [remainWorkday, '', ''])}
+        ${makeTableRow("残り日数　※今日を除く", [remainWorkday, '', ''])}
         ${makeTableRow("規定時間", [minutesToHoursMinutes(regularMin), `${minutesToHoursMinutes(over45hMin)} (+45H)`, `${minutesToHoursMinutes(over80hMin)} (+80H)`])}
         ${makeTableRow("残り時間", [minutesToHoursMinutes(remainMin),minutesToHoursMinutes(remain45hMin), minutesToHoursMinutes(remain80hMin)])}
-        ${makeTableRow("1日平均", [minutesToHoursMinutes(aveMin), minutesToHoursMinutes(ave45hMin), minutesToHoursMinutes(ave80hMin)])}
+        ${makeTableRow("1日平均　※今日を除く", [minutesToHoursMinutes(aveMin), minutesToHoursMinutes(ave45hMin), minutesToHoursMinutes(ave80hMin)])}
       </tbody>
     </table>
-    `
+  `
 
   const btn_row = document.createElement("div")
   btn_row.className = "card-text text-right"

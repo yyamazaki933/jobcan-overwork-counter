@@ -4,6 +4,11 @@
 主に自分用<br>
 Jobcan の出勤簿に、残業45H or 80H超過までの残り時間や、残りの勤務日の1日あたりの稼働可能時間を計算して表示します
 
+![alt text](docs/card.png)
+
+![alt text](docs/over.png)
+
+
 ## Install
 
 1. github から git clone か Download Zip でソースコードをダウンロードする
@@ -17,14 +22,8 @@ Jobcan の出勤簿に、残業45H or 80H超過までの残り時間や、残り
 5. 1.でダウンロードしたフォルダ(jobcan-calc)を選択する
     ![alt text](docs/stp5.png)
 
-6. Jobcanで出勤簿を開いて、出勤簿の上に「残業カウンター」カードが表示されればインストール完了
+6. Jobcanで出勤簿を開いて、出勤簿の上に「残業情報」カードが表示されれば完了です
     ![alt text](docs/stp6.png)
-
-## TODO?
-
-- 有給の挙動
-- 仮代入
-- CSVダウンロード
 
 ---
 2025.1 yudai.yamazaki
