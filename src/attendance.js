@@ -155,15 +155,16 @@ try {
       acc[e.querySelector('th').innerText] = timeToMinutes(e.querySelector('td').innerText)
       return acc
     }, {})
-  
-  const regularMin = statisticsMins['月規定労働時間']
-  const over45hMin = regularMin + (45 * 60)
-  const over80hMin = regularMin + (80 * 60)
+
   const actualMin = statisticsMins['実労働時間']
   const regularWorkday = userInfo['所定労働日数'].match(/[0-9]{2}/)[0]
   const actualWorkday = basicInfo['実働日数']
   const titleYearMonth = userInfo['年月']
   const staffCode = userInfo['スタッフコード']
+
+  const regularMin = regularWorkday * 8 * 60
+  const over45hMin = regularMin + (45 * 60)
+  const over80hMin = regularMin + (80 * 60)
   
   getWorktimeTable()
 
